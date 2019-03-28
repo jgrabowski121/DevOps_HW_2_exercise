@@ -21,7 +21,7 @@ using std::string;
 typedef std::tuple<unsigned long long, short, toDecimalError, std::string::size_type> output_value;
 
 //Define the input_key for a map to hold tests
-typedef std::tuple<const string, unsigned short, toDecimalError, std::string::size_type> input_key;
+typedef std::tuple<const string, unsigned short, toDecimalError> input_key;
 
 void test_getPermittedChars();
 void test_toDecimal();
@@ -82,15 +82,15 @@ void test_toDecimal()
     std::map<input_key, output_value> testsMap;
     const string inputString = "101";
     short basePtr = 2;
-    string::size_type posPtr = 2;
+    string::size_type posPtr;
     toDecimalError errPtr = NoError;
     
-    auto test_input = std::make_tuple(inputString, basePtr, errPtr, posPtr);
+    auto test_input = std::make_tuple(inputString, basePtr, errPtr);
     auto test_expectedOutput = std::make_tuple(5, 2, NoError, 3);
     
     testsMap[test_input] = test_expectedOutput;
 
-	test_input = std::make_tuple("0xff", 16, NoError, 0);
+	test_input = std::make_tuple("0xff", 16, NoError);
 	test_expectedOutput = std::make_tuple(255, 16, NoError, 4);
 
 	testsMap[test_input] = test_expectedOutput;
@@ -98,24 +98,22 @@ void test_toDecimal()
 
     for(auto[key, value]: testsMap)
     {
-       //auto[a,b,c,d] = key;
 		string input = std::get<0>(key);
 		unsigned short base = std::get<1>(key); 
 		toDecimalError err = std::get<2>(key);;
-		string::size_type pos = std::get<3>(key);
 
 		unsigned long long expectedOutput = std::get<0>(value);
 		unsigned short expectedBase = std::get<1>(value);
 		toDecimalError expectedErr = std::get<2>(value);
 		string::size_type expectedPos = std::get<3>(value);
        
-		unsigned long long output = toDecimal(input, &base, &err, &pos);
+		unsigned long long output = toDecimal(input, &base, &err, &posPtr);
 
 		std::cout << (output == expectedOutput ? "Pass\n" : "Fail\n")
 			<< (base == expectedBase ? "Base okay\n" : "Base incorrect\n")
 			<< "Actual base: " << base << " Expected base: " << expectedBase << std::endl
 			<< (err == expectedErr ? "Error okay\n" : "Error incorrect\n")
-			<< (pos == expectedPos ? "Pos Okay\n" : "Pos Incorrect\n");
+			<< (posPtr == expectedPos ? "Pos Okay\n" : "Pos Incorrect\n");
     }
 }
 
