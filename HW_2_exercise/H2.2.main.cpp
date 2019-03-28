@@ -3,6 +3,10 @@
 * Homework 2, Problem 2
 * Dr. Sean Murthy; CS170@WCSU
 *
+* Justin John Grabowski
+* CS-298-01
+* Due March 28th 2019
+*
 * Driver to test function toDecimal
 */
 
@@ -27,23 +31,23 @@ void test_getPermittedChars();
 void test_toDecimal();
 void checkResultAndOutput(unsigned testNumber, std::string expectedP, std::string actualP);
 
+static int testsFailed{0};
 
 int main()
 {
     test_getPermittedChars();
-    cout << "\n\nTesting toDecimal..\n";
+    cout << "\n\nTesting toDecimal..\n\n";
     test_toDecimal();
-	return 0;
+	return testsFailed;
 }
 
 void test_getPermittedChars()
 {
     unsigned testNumber{1};//counter for tests
-    //std::string actualResult;
-    //std::string expectedResult;
     
     std::map<unsigned, std::string> tests;
     
+    //check valid inputs
     tests.insert(std::pair<int, std::string>(0,  "0123456789abcdefghijklmnopqrstuvwxyz"));
     tests.insert(std::pair<int, std::string>(36, "0123456789abcdefghijklmnopqrstuvwxyz"));
     tests.insert(std::pair<int, std::string>(1,  "0"));
@@ -57,6 +61,9 @@ void test_getPermittedChars()
     tests.insert(std::pair<int, std::string>(11, "0123456789a"));
     tests.insert(std::pair<int, std::string>(15, "0123456789abcde"));
     
+    //check invalid base: should return an empty string
+    tests.insert(std::pair<int, std::string>(37, ""));
+
     for (auto&& [first, second] : tests)
     {
         checkResultAndOutput(testNumber++, second, getPermittedChars(first));
@@ -70,7 +77,10 @@ void checkResultAndOutput(unsigned testNumber, std::string expectedP, std::strin
     if(actualP == expectedP)
         std::cout << "Pass\n";
     else
+    {
         std::cout << "Fail\n";
+        testsFailed++;
+    }
 }
 
 
@@ -80,19 +90,19 @@ void test_toDecimal()
 {
     unsigned testNumber{1}; //counter for tests
     std::map<input_key, output_value> testsMap;
-    const string inputString = "101";
-    short basePtr = 2;
+    //const string inputString = "101";
+    //short basePtr = 2;
     string::size_type posPtr;
-    toDecimalError errPtr = NoError;
+    //toDecimalError errPtr = NoError;
     
-    auto test_input = std::make_tuple(inputString, basePtr, errPtr);
+    //test 1 data
+    auto test_input = std::make_tuple("101", 2, NoError);
     auto test_expectedOutput = std::make_tuple(5, 2, NoError, 3);
-    
     testsMap[test_input] = test_expectedOutput;
-
-	test_input = std::make_tuple("0xff", 16, NoError);
-	test_expectedOutput = std::make_tuple(255, 16, NoError, 4);
-
+    
+    //test 2 data
+	test_input = std::make_tuple("ff", 16, NoError);
+	test_expectedOutput = std::make_tuple(255, 16, NoError, 2);
 	testsMap[test_input] = test_expectedOutput;
 
 
@@ -109,11 +119,19 @@ void test_toDecimal()
        
 		unsigned long long output = toDecimal(input, &base, &err, &posPtr);
 
-		std::cout << (output == expectedOutput ? "Pass\n" : "Fail\n")
-			<< (base == expectedBase ? "Base okay\n" : "Base incorrect\n")
-			<< "Actual base: " << base << " Expected base: " << expectedBase << std::endl
-			<< (err == expectedErr ? "Error okay\n" : "Error incorrect\n")
-			<< (posPtr == expectedPos ? "Pos Okay\n" : "Pos Incorrect\n");
+        std::cout << "Test # " << testNumber++ << "\n"
+        <<(output == expectedOutput ? "Result: Pass\n" : "Result: Fail\n")
+            << "Actual result: " << output << " Expected result: " << expectedOutput << "\n\n"
+        << (base == expectedBase ? "Base: Pass\n" : "Base: Fail\n")
+			<< "Actual base: " << base << " Expected base: " << expectedBase << "\n\n"
+        << (err == expectedErr ? "Error: Pass\n" : "Error: Fail\n")
+            << "Actual error: " << err << " Expected error: " << expectedErr << "\n\n"
+        << (posPtr == expectedPos ? "Pos: Pass\n" : "Pos: Fail\n")
+            << "Actual pos: " << posPtr << " Expected pos: " << expectedPos << "\n\n";
+        
+        if(output != expectedOutput || base != expectedBase  ||
+            err != expectedErr || posPtr)
+            testsFailed++;
     }
 }
 
@@ -132,7 +150,7 @@ void test_toDecimal()
 * std::stoull
 */
 
-/*
+
 void convertToDecimalAndOutput(const string& number, unsigned short base)
 {
 	string::size_type pos;
@@ -172,68 +190,8 @@ void convertToDecimalAndOutput(const string& number, unsigned short base)
 
 	cout << "\n\n";
 }
- */
 
-/*
-void testGetPermittedChars()
-{
-    unsigned testNumber{1};//counter for tests
-    std::string actualResult;
-    std::string expectedResult;
- 
-    
-    
-    
-    
-    actualResult = getPermittedChars(0);
-    expectedResult = "0123456789abcdefghijklmnopqrstuvwxyz";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(36);
-    expectedResult = "0123456789abcdefghijklmnopqrstuvwxyz";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(1);
-    expectedResult = "0";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(35);
-    expectedResult = "0123456789abcdefghijklmnopqrstuvwxy";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(2);
-    expectedResult = "01";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(8);
-    expectedResult = "01234567";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(10);
-    expectedResult = "01233456789";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(16);
-    expectedResult = "0123456789abcdef";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(3);
-    expectedResult = "012";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(9);
-    expectedResult = "012345678";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(11);
-    expectedResult = "0123456789a";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-    actualResult = getPermittedChars(15);
-    expectedResult = "012345678abcd";
-    checkResultAndOutput(testNumber++, expectedResult, actualResult);
-    
-}
-*/
+
+
 
 
