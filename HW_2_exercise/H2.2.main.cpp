@@ -18,20 +18,20 @@ using std::cin;
 using std::string;
 
 //void convertToDecimalAndOutput(const string& number, unsigned short base);
-typedef std::tuple<unsigned long long, short, toDecimalError, std::string::size_type> value;
+typedef std::tuple<unsigned long long, short, toDecimalError, std::string::size_type> output_value;
 
 //Define the input_key for a map to hold tests
-typedef std::tuple<const string&, unsigned short*, toDecimalError*, std::string::size_type*> input_key;
+typedef std::tuple<const string, unsigned short, toDecimalError, std::string::size_type> input_key;
 
 void test_getPermittedChars();
 void test_toDecimal();
 void checkResultAndOutput(unsigned testNumber, std::string expectedP, std::string actualP);
-void checkResultAndOutput_toDecimal(unsigned testNumber, value expected, value actual);
+
 
 int main()
 {
     test_getPermittedChars();
-    cout << "Testing toDecimal..\n";
+    cout << "\n\nTesting toDecimal..\n";
     test_toDecimal();
 	return 0;
 }
@@ -79,42 +79,46 @@ void checkResultAndOutput(unsigned testNumber, std::string expectedP, std::strin
 void test_toDecimal()
 {
     unsigned testNumber{1}; //counter for tests
-    std::map<input_key, value> testsMap;
-    const string& inputString = "101";
-    short* basePtr = new short{1};
-    string::size_type* posPtr = new std::string::size_type{0};
-    toDecimalError* errPtr = new toDecimalError{NoError};
+    std::map<input_key, output_value> testsMap;
+    const string inputString = "101";
+    short basePtr = 2;
+    string::size_type posPtr = 2;
+    toDecimalError errPtr = NoError;
     
     auto test_input = std::make_tuple(inputString, basePtr, errPtr, posPtr);
-    auto test_expectedOutput = std::make_tuple(5, 2, NoError, 2);
+    auto test_expectedOutput = std::make_tuple(5, 2, NoError, 3);
     
     testsMap[test_input] = test_expectedOutput;
-    
+
+	test_input = std::make_tuple("0xff", 16, NoError, 0);
+	test_expectedOutput = std::make_tuple(255, 16, NoError, 4);
+
+	testsMap[test_input] = test_expectedOutput;
+
+
     for(auto[key, value]: testsMap)
     {
-        auto[a,b,c,d] = key;
-        const string& input = a;
-        const unsigned short& base = b;
-        toDecimalError& err = c;
-        string::size_type& pos = d;
-        
-        checkResultAndOutput_toDecimal(testNumber++, value, toDecimal(&a, &b, &c, &d));
+       //auto[a,b,c,d] = key;
+		string input = std::get<0>(key);
+		unsigned short base = std::get<1>(key); 
+		toDecimalError err = std::get<2>(key);;
+		string::size_type pos = std::get<3>(key);
+
+		unsigned long long expectedOutput = std::get<0>(value);
+		unsigned short expectedBase = std::get<1>(value);
+		toDecimalError expectedErr = std::get<2>(value);
+		string::size_type expectedPos = std::get<3>(value);
+       
+		unsigned long long output = toDecimal(input, &base, &err, &pos);
+
+		std::cout << (output == expectedOutput ? "Pass\n" : "Fail\n")
+			<< (base == expectedBase ? "Base okay\n" : "Base incorrect\n")
+			<< "Actual base: " << base << " Expected base: " << expectedBase << std::endl
+			<< (err == expectedErr ? "Error okay\n" : "Error incorrect\n")
+			<< (pos == expectedPos ? "Pos Okay\n" : "Pos Incorrect\n");
     }
 }
 
-// This function will check that the toDecimal function
-//  returned the correct result, and set its reference
-//  parameters to the correct values
-void checkResultAndOutput_toDecimal(unsigned testNumber, unsigned long long actual, value expectedResults)
-{
-    auto[a,b,c] = expected;
-    auto[d,e,f] = actual;
-    std::cout << "Test " << testNumber << ": ";
-    if(actual == expected)
-        std::cout << "Pass\n";
-    else
-        std::cout << "Fail\n";
-}
 /*
 * Function: void convertToDecimalAndOutput
 *
